@@ -11,7 +11,9 @@ volatile int32_t g_encoder_right_delta = 0;
 
 #define PWM_MIN_MOVING_LEFT   150
 #define PWM_MIN_MOVING_RIGHT  200
-#define MM_PER_TICK           0.04688f
+#define WHEEL_DIAMETER_MM     150.0f  /* ban 15 cm; lama: 68 */
+#define TICKS_PER_REV         2400.0f /* Autonics E40S6-600: 600 PPR x4, 1:1 dgn roda */
+#define MM_PER_TICK           ((3.14159265f * WHEEL_DIAMETER_MM) / TICKS_PER_REV)
 #define PID_DT                0.01f
 #define SPEED_MAX             1000
 #define PWM_MAX               999

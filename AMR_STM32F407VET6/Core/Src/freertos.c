@@ -48,6 +48,11 @@ uint8_t uart_rx_index = 0;
 // Safety timeout: Stop motors if no command received
 #define CMD_TIMEOUT_MS 2000
 
+// Jarak antar roda kiri-kanan (center ban ke center ban), mm.
+// HARUS SAMA dengan wheel_base di odometry_node.py (meter x 1000).
+// Lama: 292 (STM32) / 299 (odometry_node). Baru: 456.
+#define WHEELBASE_MM 456
+
 // MPU6050 IMU data structure
 MPU6050_Data imu_data;
 uint8_t imu_initialized = 0;  // Flag: 0 = not initialized, 1 = OK
@@ -317,9 +322,9 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             if (sscanf((char*)uart_rx_buffer, "V:%hd,W:%hd", &v_cmd, &w_cmd) == 2) {
 
                 // Correct differential drive kinematics
-                // v_cmd in mm/s, w_cmd in mrad/s, wheelbase = 292mm
-                // angular_contribution = w_rad * wheelbase/2 = (w_cmd/1000) * 146
-                int16_t angular_contribution = (int16_t)((w_cmd * 146) / 1000);
+                // v_cmd in mm/s, w_cmd in mrad/s, wheelbase = WHEELBASE_MM
+                // angular_contribution = w_rad * wheelbase/2 = (w_cmd/1000) * (WHEELBASE_MM/2)
+                int16_t angular_contribution = (int16_t)(((int32_t)w_cmd * (WHEELBASE_MM / 2)) / 1000);
 
                 int16_t left_speed  = v_cmd - angular_contribution;
                 int16_t right_speed = v_cmd + angular_contribution;
