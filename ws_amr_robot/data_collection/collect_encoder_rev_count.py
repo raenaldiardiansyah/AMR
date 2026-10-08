@@ -22,7 +22,7 @@ import time
 
 SERIAL_PORT = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A5069RR4-if00-port0'
 BAUD_RATE = 115200
-TICKS_PER_REV = 4557.0
+TICKS_PER_REV = 2400.0
 
 
 def wrap16(d):

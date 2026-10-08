@@ -16,9 +16,9 @@ import statistics
 from datetime import datetime
 
 # Physical constants (keep in ONE place; update here if calibration changes)
-WHEEL_DIAMETER = 0.068      # m
-WHEEL_BASE     = 0.299      # m  (corrected from 0.292 via Test B: odom overshot +2.4%, so wb must increase)
-TICKS_PER_REV  = 4557.0     # measured 2026-06-20 by push test (was 4600)
+WHEEL_DIAMETER = 0.150      # m  (robot besar, ban 15 cm; robot kecil lama: 0.068)
+WHEEL_BASE     = 0.456      # m  (robot besar; robot kecil lama: 0.299)
+TICKS_PER_REV  = 2400.0     # 600 PPR x4, 1:1 (robot kecil lama: 4557)
 M_PER_TICK     = (math.pi * WHEEL_DIAMETER) / TICKS_PER_REV
 
 # All BAB IV data lands under ~/thesis_data/ alongside pengujian_3 / pengujian_4

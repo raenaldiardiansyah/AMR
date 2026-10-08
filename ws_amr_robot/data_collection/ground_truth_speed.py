@@ -135,7 +135,7 @@ def main():
     print(f"  encoder distance  : {enc_dist:.3f} m   (L={dl:.3f}, R={dr:.3f})")
     print(f"  tape distance     : {args.distance:.3f} m")
     de = (enc_dist - args.distance) / args.distance * 100
-    print(f"  encoder vs tape   : {de:+.1f}%   (scale check; ~0% = 4557 is right)")
+    print(f"  encoder vs tape   : {de:+.1f}%   (scale check; ~0% = 2400 is right)")
     print()
     rc = (real_speed - args.speed/1000) / (args.speed/1000) * 100
     print(f"  real vs commanded : {rc:+.1f}%")
@@ -147,7 +147,7 @@ def main():
     else:
         print("  --> Partial undershoot; see the numbers.")
     if abs(de) > 8:
-        print(f"  --> Encoder distance off by {de:+.0f}% -> ticks/rev (4557) is WRONG,")
+        print(f"  --> Encoder distance off by {de:+.0f}% -> ticks/rev (2400) is WRONG,")
         print("      that is the real bug; recalibrate scale before trusting speeds.")
 
 

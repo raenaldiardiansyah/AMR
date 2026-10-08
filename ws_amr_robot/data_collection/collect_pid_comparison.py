@@ -32,8 +32,8 @@ import amr_test_utils as U
 
 SERIAL_PORT = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A5069RR4-if00-port0'
 BAUD_RATE = 115200
-TICKS_PER_REV = 4557.0
-MM_PER_TICK = (math.pi * 68.0) / TICKS_PER_REV
+TICKS_PER_REV = 2400.0
+MM_PER_TICK = (math.pi * 150.0) / TICKS_PER_REV
 DEFAULT_TARGETS = [100, 150, 200]  # mm/s
 REPS = 5
 STEP_DURATION = 20.0   # seconds per step

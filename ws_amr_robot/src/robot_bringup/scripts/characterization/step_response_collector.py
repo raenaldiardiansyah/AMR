@@ -49,8 +49,8 @@ import datetime
 # ============================================================
 # PHYSICAL CONSTANTS
 # ============================================================
-WHEEL_DIAMETER = 0.068        # meters
-TICKS_PER_REV  = 4600.0
+WHEEL_DIAMETER = 0.150        # meters
+TICKS_PER_REV  = 2400.0
 MM_PER_TICK    = (math.pi * WHEEL_DIAMETER) / TICKS_PER_REV * 1000.0
 POLARITY_LEFT  =  1.0         # left encoder: positive ticks = forward
 POLARITY_RIGHT = -1.0         # right encoder: negative ticks = forward
