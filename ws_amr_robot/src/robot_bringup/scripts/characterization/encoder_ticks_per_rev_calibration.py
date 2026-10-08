@@ -10,7 +10,7 @@ Per push you move the robot a fixed distance (default 0.80 m) along a straight
 line. Do it 5 to 10 times. The script averages the tick delta and computes,
 per wheel:
   meters_per_tick = push_distance / avg_ticks_per_push   <- what odometry needs
-  ticks_per_rev   = avg_ticks * pi * wheel_d / push_dist  <- to compare with 4600
+  ticks_per_rev   = avg_ticks * pi * wheel_d / push_dist  <- to compare with 2400
 
 It also reports the LEFT/RIGHT mismatch. Because you push straight along a line
 (use a wall or floor tape as a guide), this mismatch is trustworthy and is a
@@ -36,8 +36,8 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Int32MultiArray
 
-CURRENT_TICKS_PER_REV = 4600.0   # currently assumed, for comparison
-WHEEL_DIAMETER = 0.068           # m, from project memory
+CURRENT_TICKS_PER_REV = 2400.0   # currently assumed, for comparison
+WHEEL_DIAMETER = 0.150           # m, ban 15 cm (robot besar)
 DEFAULT_PUSH_M = 0.80            # meters per push
 
 

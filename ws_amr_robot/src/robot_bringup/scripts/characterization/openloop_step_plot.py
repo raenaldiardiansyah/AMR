@@ -38,8 +38,8 @@ from datetime import datetime
 # ============================================================
 SERIAL_PORT  = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A5069RR4-if00-port0'
 BAUD_RATE    = 115200
-MM_PER_TICK  = 0.04688      # mm per tick = pi * 68mm / 4557 ticks (calibrated 2026-06-20)
-WHEEL_DIAM   = 0.068        # meter
+MM_PER_TICK  = 0.19635      # mm per tick = pi * 150mm / 2400 ticks (robot besar)
+WHEEL_DIAM   = 0.150        # meter
 TIMESTAMP    = datetime.now().strftime('%Y%m%d_%H%M%S')
 
 # Batas dt yang valid: paket STM32 datang setiap 50ms (20Hz)
