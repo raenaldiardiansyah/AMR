@@ -18,17 +18,38 @@ volatile int32_t g_encoder_right_delta = 0;
 #define SPEED_MAX             1000
 #define PWM_MAX               999
 
-void Motor_Init(void) {
-    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
-    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
+/* 2026-10-08: driver robot besar = 2x BTS7960 (IBT-2), 2 PWM per motor (dari firmware
+ * AMR_Orange untuk PCB robot besar). Lama: L298N, pin arah PE7-PE10 + PWM CH1/CH2.
+ *   TIM8 CH1 (PC6) = kiri maju  (RPWM)   TIM8 CH2 (PC7) = kiri mundur  (LPWM)
+ *   TIM8 CH3 (PC8) = kanan maju (RPWM)   TIM8 CH4 (PC9) = kanan mundur (LPWM)
+ * Hanya tahap keluaran yang berubah; PI (Buku TA 3.4.3) tetap sama. */
+static void Motor_WritePWM(float target_speed, uint16_t pwm,
+                           uint32_t ch_fwd, uint32_t ch_rev) {
+    if (target_speed > 0) {
+        __HAL_TIM_SET_COMPARE(&htim8, ch_rev, 0);
+        __HAL_TIM_SET_COMPARE(&htim8, ch_fwd, pwm);
+    } else if (target_speed < 0) {
+        __HAL_TIM_SET_COMPARE(&htim8, ch_fwd, 0);
+        __HAL_TIM_SET_COMPARE(&htim8, ch_rev, pwm);
+    } else {
+        __HAL_TIM_SET_COMPARE(&htim8, ch_fwd, 0);
+        __HAL_TIM_SET_COMPARE(&htim8, ch_rev, 0);
+    }
+}
 
+static void Motor_AllPWMZero(void) {
     __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, 0);
     __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, 0);
+    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_3, 0);
+    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_4, 0);
+}
 
-    HAL_GPIO_WritePin(MOTOR_L_IN1_GPIO_Port, MOTOR_L_IN1_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MOTOR_L_IN2_GPIO_Port, MOTOR_L_IN2_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MOTOR_R_IN3_GPIO_Port, MOTOR_R_IN3_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(MOTOR_R_IN4_GPIO_Port, MOTOR_R_IN4_Pin, GPIO_PIN_RESET);
+void Motor_Init(void) {
+    Motor_AllPWMZero();
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_1);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_2);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_3);
+    HAL_TIM_PWM_Start(&htim8, TIM_CHANNEL_4);
 
     g_pid_left.kp  = 6.75f;
     g_pid_left.ki  = 17.01f;
@@ -139,39 +160,12 @@ void Motor_PID_Update(void) {
     if (g_pid_right.target_speed == 0) right_pwm = 0;
 
     // ================================================================
-    // STEP 5: SET DIRECTION PINS BASED ON TARGET SIGN
-    // This is IDENTICAL to your original Motor_SetSpeed that worked
+    // STEP 5+6: ARAH + PWM KE BTS7960
+    // Arah dari tanda target (sama seperti versi L298N): PWM masuk ke
+    // channel maju ATAU mundur, channel lainnya 0.
     // ================================================================
-
-    // LEFT MOTOR
-    if (g_pid_left.target_speed > 0) {
-        HAL_GPIO_WritePin(MOTOR_L_IN1_GPIO_Port, MOTOR_L_IN1_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(MOTOR_L_IN2_GPIO_Port, MOTOR_L_IN2_Pin, GPIO_PIN_RESET);
-    } else if (g_pid_left.target_speed < 0) {
-        HAL_GPIO_WritePin(MOTOR_L_IN1_GPIO_Port, MOTOR_L_IN1_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(MOTOR_L_IN2_GPIO_Port, MOTOR_L_IN2_Pin, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(MOTOR_L_IN1_GPIO_Port, MOTOR_L_IN1_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(MOTOR_L_IN2_GPIO_Port, MOTOR_L_IN2_Pin, GPIO_PIN_RESET);
-    }
-
-    // RIGHT MOTOR
-    if (g_pid_right.target_speed > 0) {
-        HAL_GPIO_WritePin(MOTOR_R_IN3_GPIO_Port, MOTOR_R_IN3_Pin, GPIO_PIN_SET);
-        HAL_GPIO_WritePin(MOTOR_R_IN4_GPIO_Port, MOTOR_R_IN4_Pin, GPIO_PIN_RESET);
-    } else if (g_pid_right.target_speed < 0) {
-        HAL_GPIO_WritePin(MOTOR_R_IN3_GPIO_Port, MOTOR_R_IN3_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(MOTOR_R_IN4_GPIO_Port, MOTOR_R_IN4_Pin, GPIO_PIN_SET);
-    } else {
-        HAL_GPIO_WritePin(MOTOR_R_IN3_GPIO_Port, MOTOR_R_IN3_Pin, GPIO_PIN_RESET);
-        HAL_GPIO_WritePin(MOTOR_R_IN4_GPIO_Port, MOTOR_R_IN4_Pin, GPIO_PIN_RESET);
-    }
-
-    // ================================================================
-    // STEP 6: APPLY PWM
-    // ================================================================
-    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, left_pwm);
-    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, right_pwm);
+    Motor_WritePWM(g_pid_left.target_speed,  left_pwm,  TIM_CHANNEL_1, TIM_CHANNEL_2);
+    Motor_WritePWM(g_pid_right.target_speed, right_pwm, TIM_CHANNEL_3, TIM_CHANNEL_4);
 }
 
 void Motor_Emergency_Stop(void) {
@@ -180,8 +174,7 @@ void Motor_Emergency_Stop(void) {
     g_pid_left.integral  = 0;
     g_pid_right.integral = 0;
     Motor_SetTargetSpeed(0, 0);
-    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_1, 0);
-    __HAL_TIM_SET_COMPARE(&htim8, TIM_CHANNEL_2, 0);
+    Motor_AllPWMZero();
 }
 
 uint8_t Motor_CheckTimeout(uint32_t current_time, uint32_t timeout_ms) {

@@ -60,14 +60,12 @@ void Error_Handler(void);
 #define IMU_INT_Pin GPIO_PIN_0
 #define IMU_INT_GPIO_Port GPIOB
 #define IMU_INT_EXTI_IRQn EXTI0_IRQn
-#define MOTOR_L_IN1_Pin GPIO_PIN_7
-#define MOTOR_L_IN1_GPIO_Port GPIOE
-#define MOTOR_L_IN2_Pin GPIO_PIN_8
-#define MOTOR_L_IN2_GPIO_Port GPIOE
-#define MOTOR_R_IN3_Pin GPIO_PIN_9
-#define MOTOR_R_IN3_GPIO_Port GPIOE
-#define MOTOR_R_IN4_Pin GPIO_PIN_10
-#define MOTOR_R_IN4_GPIO_Port GPIOE
+#define US_Trig_Pin GPIO_PIN_7
+#define US_Trig_GPIO_Port GPIOE
+#define US_Echo_Pin GPIO_PIN_8
+#define US_Echo_GPIO_Port GPIOE
+#define BUZZER_RELAY_Pin GPIO_PIN_15
+#define BUZZER_RELAY_GPIO_Port GPIOD
 
 /* USER CODE BEGIN Private defines */
 
