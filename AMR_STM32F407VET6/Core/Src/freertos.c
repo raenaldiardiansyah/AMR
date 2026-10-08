@@ -174,6 +174,10 @@ void StartDefaultTask(void *argument)
     }
 
   // 4. Start UART RX Interrupt untuk menerima perintah motor dari Raspberry
+  // Bridge sudah kirim perintah selama init IMU -> ORE sudah set di sini. Tanpa clear,
+  // HAL langsung abort RX dan perintah motor tidak pernah diterima.
+  __HAL_UART_CLEAR_OREFLAG(&huart1);
+  uart_rx_index = 0;
   HAL_UART_Receive_IT(&huart1, &uart_rx_buffer[uart_rx_index], 1);
 
   char tx_buffer[128];
@@ -365,6 +369,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
             }
         }
 
+        HAL_UART_Receive_IT(&huart1, &uart_rx_buffer[uart_rx_index], 1);
+    }
+}
+
+// 2026-10-08: error UART (overrun/noise/framing) membatalkan Receive_IT. Tanpa callback
+// ini RX mati permanen: telemetri tetap keluar, tapi perintah V/W tidak pernah masuk.
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+    if (huart->Instance == USART1) {
+        __HAL_UART_CLEAR_OREFLAG(huart);
+        uart_rx_index = 0;
         HAL_UART_Receive_IT(&huart1, &uart_rx_buffer[uart_rx_index], 1);
     }
 }
