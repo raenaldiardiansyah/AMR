@@ -136,9 +136,13 @@ void StartDefaultTask(void *argument)
   Motor_Init();
 
   // 3. IMU Initialization with proper I2C full reset between retries
+    // 2026-10-08: IWDG timeout ~2 s, sedangkan 5x retry IMU ~2,4 s. Tanpa refresh di
+    // sini STM32 reset terus kalau MPU6050 tidak terdeteksi (tidak pernah masuk loop utama).
+    HAL_IWDG_Refresh(&hiwdg);
     osDelay(500);
 
     for (int attempt = 0; attempt < 5; attempt++) {
+        HAL_IWDG_Refresh(&hiwdg);
 
         // Full peripheral reset before each attempt.
         // This is much stronger than __HAL_I2C_DISABLE/__HAL_I2C_ENABLE.
