@@ -1,5 +1,4 @@
-../Core/Src/motor_control.c:19:6:Motor_Init	8	static
-../Core/Src/motor_control.c:44:6:Motor_SetTargetSpeed	16	static
-../Core/Src/motor_control.c:62:6:Motor_PID_Update	64	static
-../Core/Src/motor_control.c:176:6:Motor_Emergency_Stop	8	static
-../Core/Src/motor_control.c:186:9:Motor_CheckTimeout	16	static
+../Core/Src/motor_control.c:13:6:Motor_Init	8	static
+../Core/Src/motor_control.c:25:6:Motor_SetSpeed	24	static
+../Core/Src/motor_control.c:66:6:Motor_Emergency_Stop	8	static
+../Core/Src/motor_control.c:70:9:Motor_CheckTimeout	16	static

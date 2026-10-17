@@ -5,10 +5,6 @@
  * Command accepted: "P:LEFT_PWM,RIGHT_PWM\r\n" (0 to 999)
  * Telemetry sent (20 Hz): {"l":LEFT_TICKS,"r":RIGHT_TICKS,"lp":LEFT_PWM,"rp":RIGHT_PWM}\r\n
  * ============================================================
- * 2026-10-08: disalin dari AMR_Orange_STM32F407VET6.rar (versi robot besar),
- * menggantikan versi L298N robot kecil. Tambahan: HAL_IWDG_Refresh, karena proyek
- * ini mengaktifkan IWDG (~2 s) di main.c; tanpa refresh MCU reset terus.
- * Masih di-exclude dari build (.cproject); tukar dengan freertos.c untuk karakterisasi.
  */
 
 #include "FreeRTOS.h"
@@ -21,7 +17,6 @@
 #include <stdlib.h>
 #include "usart.h"
 #include "tim.h"
-#include "iwdg.h"
 
 #define CMD_BUFFER_SIZE  64
 #define CMD_TIMEOUT_MS   2000
@@ -139,10 +134,7 @@ void StartDefaultTask(void *argument)
             }
         }
 
-        /* E. Watchdog feed */
-        HAL_IWDG_Refresh(&hiwdg);
-
-        /* F. Non-drifting delay */
+        /* E. Non-drifting delay */
         vTaskDelayUntil(&xLastWakeTime, xPeriod);
     }
 }

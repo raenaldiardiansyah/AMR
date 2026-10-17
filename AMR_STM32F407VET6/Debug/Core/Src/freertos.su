@@ -1,6 +1,4 @@
-../Core/Src/freertos.c:80:6:MX_FREERTOS_Init	8	static
-../Core/Src/freertos.c:122:6:StartDefaultTask	352	static
-../Core/Src/freertos.c:301:6:HAL_UART_RxCpltCallback	32	static
-../Core/Src/freertos.c:363:6:HAL_GPIO_EXTI_Callback	16	static
-../Core/Src/freertos.c:368:6:vApplicationStackOverflowHook	104	static
-../Core/Src/freertos.c:385:6:vApplicationMallocFailedHook	56	static
+../Core/Src/freertos.c:82:6:MX_FREERTOS_Init	8	static
+../Core/Src/freertos.c:124:6:StartDefaultTask	360	static
+../Core/Src/freertos.c:262:6:HAL_UART_RxCpltCallback	32	static
+../Core/Src/freertos.c:309:6:HAL_GPIO_EXTI_Callback	24	static

@@ -22,7 +22,7 @@
 #define MPU6050_TEMP_OUT_H   0x41
 
 // Expected WHO_AM_I value
-#define MPU6050_WHO_AM_I_VAL 0x68
+#define MPU6050_WHO_AM_I_VAL 0x70
 
 // Interrupt enable bits
 #define MPU6050_INT_DATA_RDY_EN  0x01  // Data Ready interrupt enable
