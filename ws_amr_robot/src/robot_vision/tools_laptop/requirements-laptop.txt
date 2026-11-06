@@ -1,0 +1,6 @@
+# Env pengembangan kamera di laptop Windows (tanpa ROS).
+# PyTorch CUDA dipasang terpisah dulu (lihat README paket), baru file ini:
+#   pip install -r requirements-laptop.txt
+ultralytics
+# opencv-contrib (bukan opencv-python) karena butuh modul aruco untuk AprilTag.
+opencv-contrib-python

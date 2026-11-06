@@ -64,8 +64,8 @@ MOTION_THRESHOLD = 0.01  # measured speed above this counts as "moving" (deadban
 SATURATION_EPS = 0.005   # measured rise smaller than this counts as "plateau"
 
 # encoder geometry (from project memory)
-TICKS_PER_REV = 4600.0
-WHEEL_DIAMETER = 0.068   # m
+TICKS_PER_REV = 2400.0
+WHEEL_DIAMETER = 0.150   # m
 M_PER_TICK = (math.pi * WHEEL_DIAMETER) / TICKS_PER_REV
 
 

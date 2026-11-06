@@ -15,7 +15,7 @@ PURPOSE:
   5. Saves data for you to plot and report in your thesis
 
 WHY THIS MATTERS:
-  The encoder has 4600 ticks/revolution. At high speed, each rotation takes
+  The encoder has 2400 ticks/revolution. At high speed, each rotation takes
   a short time. The time between ticks has tiny variations due to mechanical
   imperfections. When you calculate speed from ticks/time, these variations
   show up as repeating noise (ripple) at a specific frequency.
@@ -123,8 +123,8 @@ def do_fft_analysis(speed_data, sample_rate):
 def estimate_expected_ripple_freq(speed_mmps):
     """
     Calculate theoretically expected ripple frequency based on robot specs.
-    Speed in mm/s, wheel circumference = pi * 68mm = 213.6mm
-    Encoder ticks per revolution = 4600
+    Speed in mm/s, wheel circumference = pi * 150mm = 471.2mm
+    Encoder ticks per revolution = 2400
     
     At speed V mm/s:
       Revolutions per second = V / circumference
@@ -134,11 +134,11 @@ def estimate_expected_ripple_freq(speed_mmps):
     Actually the ripple from gear teeth or encoder slots:
       Wheel RPM = (V * 60) / (pi * diameter_mm)
     """
-    wheel_circ_mm = math.pi * 68.0    # pi * diameter
+    wheel_circ_mm = math.pi * 150.0    # pi * diameter
     revs_per_sec = speed_mmps / wheel_circ_mm
-    # Ripple from encoder slots: 4600 ticks/rev
+    # Ripple from encoder slots: 2400 ticks/rev
     # But actual observable ripple is usually at lower harmonics
-    tick_rate_hz = revs_per_sec * 4600
+    tick_rate_hz = revs_per_sec * 2400
     return revs_per_sec, tick_rate_hz
 
 

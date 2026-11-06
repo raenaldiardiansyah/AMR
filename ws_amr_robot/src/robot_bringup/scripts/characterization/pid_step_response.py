@@ -73,8 +73,8 @@ SERIAL_PORT  = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A5069RR4-if00-port0'
 BAUD_RATE    = 115200
 
 # Physical constants
-WHEEL_DIAMETER  = 0.068
-TICKS_PER_REV   = 4557.0   # measured 2026-06-20 (push test), was 4600
+WHEEL_DIAMETER  = 0.150
+TICKS_PER_REV   = 2400.0   # 600 PPR x4 (robot kecil lama: 4557)
 M_PER_TICK      = (math.pi * WHEEL_DIAMETER) / TICKS_PER_REV
 MM_PER_TICK     = M_PER_TICK * 1000.0
 

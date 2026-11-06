@@ -1,6 +1,0 @@
-source;share/sllidar_ros2/hook/cmake_prefix_path.dsv
-source;share/sllidar_ros2/hook/cmake_prefix_path.sh
-source;share/sllidar_ros2/local_setup.bash
-source;share/sllidar_ros2/local_setup.dsv
-source;share/sllidar_ros2/local_setup.sh
-source;share/sllidar_ros2/local_setup.zsh

@@ -59,8 +59,8 @@ SERIAL_PORT = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A5069RR4-if00-port0'
 BAUD_RATE   = 115200
 
 # Physical robot constants (same as your odometry_node.py)
-WHEEL_DIAMETER   = 0.068   # meters
-TICKS_PER_REV    = 4600.0  # encoder ticks per full wheel revolution
+WHEEL_DIAMETER   = 0.150   # meters
+TICKS_PER_REV    = 2400.0  # encoder ticks per full wheel revolution
 M_PER_TICK       = (math.pi * WHEEL_DIAMETER) / TICKS_PER_REV  # meters per tick
 
 # PWM sweep settings

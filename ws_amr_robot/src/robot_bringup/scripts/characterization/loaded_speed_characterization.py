@@ -11,7 +11,7 @@ Requires the unified firmware that accepts "P:LEFT,RIGHT" raw PWM and streams
 {"l":..,"r":..} telemetry from the (working) encoder hardware.
 
 A background thread reads serial nonstop (no lost packets). Speeds come from
-wrap-corrected tick deltas. Units use 4557 ticks/rev (measured).
+wrap-corrected tick deltas. Units use 2400 ticks/rev.
 
 HOW TO USE:
   Terminal 1: flash the unified firmware.
@@ -40,8 +40,8 @@ from datetime import datetime
 SERIAL_PORT = '/dev/serial/by-id/usb-FTDI_FT232R_USB_UART_A5069RR4-if00-port0'
 BAUD_RATE   = 115200
 
-WHEEL_DIAMETER = 0.068
-TICKS_PER_REV  = 4557.0
+WHEEL_DIAMETER = 0.150
+TICKS_PER_REV  = 2400.0
 M_PER_TICK     = (math.pi * WHEEL_DIAMETER) / TICKS_PER_REV
 
 PWM_END   = 999

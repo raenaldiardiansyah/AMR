@@ -1,72 +1,67 @@
 #include "mpu6050.h"
 
 /**
- * @brief Initialize MPU6050 sensor
- * CHANGE: All HAL_MAX_DELAY replaced with 200ms timeout.
- * HAL_MAX_DELAY means "wait forever". If I2C bus is stuck,
- * the old code would hang here forever and IWDG would reset STM32.
- * With 200ms timeout, if I2C is stuck, this function returns HAL_ERROR
- * quickly and the retry loop in freertos.c can try again properly.
+ * @brief Initialize MPU6050 sensor with DATA_READY interrupt enabled
  */
 HAL_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *hi2c) {
     HAL_StatusTypeDef status;
     uint8_t check;
     uint8_t data;
 
-    // Step 1: Verify device is present (WHO_AM_I should return 0x68)
+    // Step 1: Verify device is present (WHO_AM_I should return expected value)
+    // AMANDEMEN: Timeout 100ms
     status = HAL_I2C_Mem_Read(hi2c, MPU6050_ADDR, MPU6050_WHO_AM_I,
-                              1, &check, 1, 200);  // 200ms timeout, was HAL_MAX_DELAY
+                              1, &check, 1, 100);
 
     if (status != HAL_OK || check != MPU6050_WHO_AM_I_VAL) {
-        return HAL_ERROR;  // Device not found, wrong device, or bus stuck
+        return HAL_ERROR;  // Device not found or wrong device
     }
 
     // Step 2: Wake up MPU6050 (exit sleep mode)
+    // AMANDEMEN: Timeout 100ms
     data = 0x00;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_PWR_MGMT_1,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
-    HAL_Delay(200);  // Wait for sensor to stabilize after wakeup
+    HAL_Delay(200);  // Wait for sensor to stabilize
 
     // Step 3: Set sample rate divider
     // Sample Rate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
-    // Gyro Output Rate = 1kHz (when DLPF is enabled)
     // Setting SMPLRT_DIV = 9 gives us 100Hz sample rate
-    data = 0x09;  // 1000Hz / (1 + 9) = 100Hz
+    data = 0x09;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_SMPLRT_DIV,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
     // Step 4: Configure Digital Low Pass Filter (DLPF)
-    // CONFIG register: DLPF_CFG = 3 (bandwidth ~44Hz, reduces noise)
     data = 0x03;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_CONFIG,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
-    // Step 5: Configure Gyroscope range (+-250 deg/s)
+    // Step 5: Configure Gyroscope range (±250°/s)
     data = 0x00;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_GYRO_CONFIG,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
-    // Step 6: Configure Accelerometer range (+-2g)
+    // Step 6: Configure Accelerometer range (±2g)
     data = 0x00;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_ACCEL_CONFIG,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
-    // Step 7: Configure Interrupt Pin behavior
-    data = 0x00;  // Active high, push-pull, 50us pulse, status read to clear
+    // Step 7: Configure Interrupt Pin (INT pin behavior)
+    data = 0x00;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_INT_PIN_CFG,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
     // Step 8: Enable DATA_READY interrupt
     data = MPU6050_INT_DATA_RDY_EN;
     status = HAL_I2C_Mem_Write(hi2c, MPU6050_ADDR, MPU6050_INT_ENABLE,
-                               1, &data, 1, 200);  // 200ms timeout
+                               1, &data, 1, 100);
     if (status != HAL_OK) return status;
 
     return HAL_OK;
@@ -74,20 +69,15 @@ HAL_StatusTypeDef MPU6050_Init(I2C_HandleTypeDef *hi2c) {
 
 /**
  * @brief Read all sensor data from MPU6050
- * CHANGE: HAL_MAX_DELAY replaced with 50ms timeout.
- * This function runs 100 times per second inside the FreeRTOS loop.
- * If it hangs, the entire loop hangs, IWDG does not get refreshed,
- * and the STM32 resets. 50ms is more than enough for a 100kHz I2C read.
  */
 HAL_StatusTypeDef MPU6050_ReadData(I2C_HandleTypeDef *hi2c, MPU6050_Data *data) {
     uint8_t raw_data[14];
     HAL_StatusTypeDef status;
 
-    // Read 14 consecutive bytes starting from ACCEL_XOUT_H
-    // Layout: ACCEL_X(H,L), ACCEL_Y(H,L), ACCEL_Z(H,L), TEMP(H,L),
-    //         GYRO_X(H,L), GYRO_Y(H,L), GYRO_Z(H,L)
+    // AMANDEMEN ABSOLUT: Pembacaan dinamis di dalam RTOS TIDAK BOLEH melebihi 10ms.
+    // Jika bus I2C macet, fungsi ini akan langsung menyerah dan membiarkan RTOS terus berjalan.
     status = HAL_I2C_Mem_Read(hi2c, MPU6050_ADDR, MPU6050_ACCEL_XOUT_H,
-                              1, raw_data, 14, 50);  // 50ms timeout, was HAL_MAX_DELAY
+                              1, raw_data, 14, 10);
 
     if (status != HAL_OK) {
         return status;
@@ -112,20 +102,16 @@ HAL_StatusTypeDef MPU6050_ReadData(I2C_HandleTypeDef *hi2c, MPU6050_Data *data) 
 
 /**
  * @brief Convert raw sensor values to physical units with axis corrections
- * @note Axis transformations applied to match ROS REP-103 conventions
- *       Based on physical mounting orientation:
- *       - accel_x inverted (nose down should be positive)
- *       - accel_y inverted (left tilt should be positive)
- *       - accel_z correct (up is positive)
- *       - gyro_z correct (CCW rotation is positive)
  */
 void MPU6050_ProcessData(MPU6050_Data *data) {
-    // Convert accelerometer from LSB to m/s^2
+    // Convert accelerometer from LSB to m/s²
+    // Axes inverted to match ROS REP-103 based on current mounting
     data->accel_x = -(data->accel_x_raw / ACCEL_SCALE_FACTOR) * GRAVITY;
     data->accel_y = -(data->accel_y_raw / ACCEL_SCALE_FACTOR) * GRAVITY;
-    data->accel_z =  (data->accel_z_raw / ACCEL_SCALE_FACTOR) * GRAVITY;
+    data->accel_z = (data->accel_z_raw / ACCEL_SCALE_FACTOR) * GRAVITY;
 
     // Convert gyroscope from LSB to rad/s
+    // All axes correct as-is for current mounting
     data->gyro_x = (data->gyro_x_raw / GYRO_SCALE_FACTOR) * GYRO_TO_RAD;
     data->gyro_y = (data->gyro_y_raw / GYRO_SCALE_FACTOR) * GYRO_TO_RAD;
     data->gyro_z = (data->gyro_z_raw / GYRO_SCALE_FACTOR) * GYRO_TO_RAD;
@@ -136,13 +122,13 @@ void MPU6050_ProcessData(MPU6050_Data *data) {
 
 /**
  * @brief Read and clear interrupt status register
- * CHANGE: HAL_MAX_DELAY replaced with 50ms timeout.
  */
 uint8_t MPU6050_ReadIntStatus(I2C_HandleTypeDef *hi2c) {
     uint8_t int_status = 0;
 
+    // AMANDEMEN: Timeout 10ms
     HAL_I2C_Mem_Read(hi2c, MPU6050_ADDR, MPU6050_INT_STATUS,
-                     1, &int_status, 1, 50);  // 50ms timeout, was HAL_MAX_DELAY
+                     1, &int_status, 1, 10);
 
     return int_status;  // Bit 0 = DATA_RDY_INT
 }

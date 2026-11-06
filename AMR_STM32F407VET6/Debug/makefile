@@ -64,8 +64,8 @@ all: main-build
 main-build: AMR_STM32F407VET6.elf secondary-outputs
 
 # Tool invocations
-AMR_STM32F407VET6.elf AMR_STM32F407VET6.map: $(OBJS) $(USER_OBJS) D:\Reinald\STM32\Robot-TA\Testing\Backups\AMR_STM32F407VET6\STM32F407VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "AMR_STM32F407VET6.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\Reinald\STM32\Robot-TA\Testing\Backups\AMR_STM32F407VET6\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="AMR_STM32F407VET6.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+AMR_STM32F407VET6.elf AMR_STM32F407VET6.map: $(OBJS) $(USER_OBJS) D:\Reinald\STM32\Robot-TA\Testing\AMR_STM32F407VET6\STM32F407VETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "AMR_STM32F407VET6.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\Reinald\STM32\Robot-TA\Testing\AMR_STM32F407VET6\STM32F407VETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="AMR_STM32F407VET6.map" -Wl,--gc-sections -static -u _printf_float --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

@@ -7,6 +7,10 @@ from std_msgs.msg import Int32MultiArray
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
 
+WHEEL_BASE_M = 0.456  # HARUS SAMA dengan odometry_node.py
+# shortcut: 470 = kecepatan teoretis tanpa beban di PWM 100% (gear 1:50); ganti dengan hasil ukur.
+FULL_PWM_SPEED_MMPS = 470.0
+
 
 class STM32Bridge(Node):
     def __init__(self):
@@ -49,6 +53,13 @@ class STM32Bridge(Node):
         self.current_v = 0  # mm/s
         self.current_w = 0  # mrad/s
 
+        # 2026-10-08: safety timeout. twist_mux tidak mengirim 0 saat semua input
+        # timeout, dan bridge mengulang perintah terakhir tiap 50 ms -> tanpa ini
+        # robot terus jalan kalau teleop/Nav2 mati (timeout 2 s di firmware tidak
+        # pernah terpicu karena perintah terus datang).
+        self.cmd_timeout_s = 0.5
+        self.last_cmd_time = self.get_clock().now()
+
         self.timer = self.create_timer(0.05, self.timer_callback)
 
         # Diagnostic counter (Session 5 addition): tracks how many JSON
@@ -69,12 +80,17 @@ class STM32Bridge(Node):
 
     def cmd_vel_callback(self, msg):
         """Convert TwistStamped message to STM32 format"""
-        self.current_v = int(msg.linear.x * 1000)   # m/s to mm/s
-        self.current_w = int(msg.angular.z * 1000)  # rad/s to mrad/s
+        # 2026-11-05: firmware Orange (open-loop, e20a6ff) memakai kiri/kanan = V -/+ W/2
+        # dan V 1000 = PWM 100%. Kirim W = w*wheelbase supaya belok benar, lalu skala ke PWM.
+        # lama: V = v*1000, W = w*1000 (untuk firmware PI).
+        scale = 1000.0 / FULL_PWM_SPEED_MMPS
+        self.current_v = int(msg.linear.x * 1000 * scale)
+        self.current_w = int(msg.angular.z * 1000 * WHEEL_BASE_M * scale)
 
         # Clamp values
         self.current_v = max(-1000, min(1000, self.current_v))
         self.current_w = max(-2000, min(2000, self.current_w))
+        self.last_cmd_time = self.get_clock().now()
 
     def process_telemetry_line(self, line, latest_imu_holder):
         try:
@@ -114,7 +130,12 @@ class STM32Bridge(Node):
     def timer_callback(self):
         """Combined write command + read encoder + IMU data (FIXED)"""
 
-        # 1. Send command to STM32 (UNCHANGED)
+        # 1. Send command to STM32 (stop if no fresh /cmd_vel within cmd_timeout_s)
+        age_s = (self.get_clock().now() - self.last_cmd_time).nanoseconds / 1e9
+        if age_s > self.cmd_timeout_s and (self.current_v != 0 or self.current_w != 0):
+            self.get_logger().warn(f'/cmd_vel timeout ({age_s:.1f} s) -> STOP')
+            self.current_v = 0
+            self.current_w = 0
         try:
             cmd_str = f"V:{self.current_v},W:{self.current_w}\r\n"
             self.ser.write(cmd_str.encode('utf-8'))

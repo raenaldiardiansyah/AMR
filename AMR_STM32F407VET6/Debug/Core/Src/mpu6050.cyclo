@@ -1,4 +1,4 @@
-../Core/Src/mpu6050.c:11:19:MPU6050_Init	10
-../Core/Src/mpu6050.c:82:19:MPU6050_ReadData	2
-../Core/Src/mpu6050.c:122:6:MPU6050_ProcessData	1
-../Core/Src/mpu6050.c:141:9:MPU6050_ReadIntStatus	1
+../Core/Src/mpu6050.c:6:19:MPU6050_Init	10
+../Core/Src/mpu6050.c:73:19:MPU6050_ReadData	2
+../Core/Src/mpu6050.c:106:6:MPU6050_ProcessData	1
+../Core/Src/mpu6050.c:126:9:MPU6050_ReadIntStatus	1

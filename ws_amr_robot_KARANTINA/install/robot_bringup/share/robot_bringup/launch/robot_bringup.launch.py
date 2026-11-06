@@ -1,1 +1,0 @@
-/home/kanal-raspi5/Autonomous-Mobile-Robot/ws_amr_robot/build/robot_bringup/launch/robot_bringup.launch.py

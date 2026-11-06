@@ -27,10 +27,15 @@ def generate_launch_description():
     # Z = 0.29 meter (2026-07-21: spacer +12cm added for full 360deg clearance,
     #     was 0.17m -- CONFIRM X/Y unchanged if the spacer also shifted the
     #     mount horizontally, not just vertically)
+    LIDAR_X = '0.08'   # + ke depan   (MASIH NILAI LAMA, ukur ulang)
+    LIDAR_Y = '0.0'    # + ke kiri
+    LIDAR_Z = '0.29'   # tinggi
+
     tf_node = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        arguments=['0.08', '0.0', '0.29', '3.14159', '0.0', '0.0', 'base_link', 'laser_frame'],
+        # SEBELUM: arguments=['0.08', '0.0', '0.29', '3.14159', '0.0', '0.0', 'base_link', 'laser_frame'],
+        arguments=[LIDAR_X, LIDAR_Y, LIDAR_Z, '3.14159', '0.0', '0.0', 'base_link', 'laser_frame'],
         output='screen'
     )
 
