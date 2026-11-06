@@ -7,6 +7,10 @@ from std_msgs.msg import Int32MultiArray
 from geometry_msgs.msg import Twist
 from sensor_msgs.msg import Imu
 
+WHEEL_BASE_M = 0.456  # HARUS SAMA dengan odometry_node.py
+# shortcut: 470 = kecepatan teoretis tanpa beban di PWM 100% (gear 1:50); ganti dengan hasil ukur.
+FULL_PWM_SPEED_MMPS = 470.0
+
 
 class STM32Bridge(Node):
     def __init__(self):
@@ -76,8 +80,12 @@ class STM32Bridge(Node):
 
     def cmd_vel_callback(self, msg):
         """Convert TwistStamped message to STM32 format"""
-        self.current_v = int(msg.linear.x * 1000)   # m/s to mm/s
-        self.current_w = int(msg.angular.z * 1000)  # rad/s to mrad/s
+        # 2026-11-05: firmware Orange (open-loop, e20a6ff) memakai kiri/kanan = V -/+ W/2
+        # dan V 1000 = PWM 100%. Kirim W = w*wheelbase supaya belok benar, lalu skala ke PWM.
+        # lama: V = v*1000, W = w*1000 (untuk firmware PI).
+        scale = 1000.0 / FULL_PWM_SPEED_MMPS
+        self.current_v = int(msg.linear.x * 1000 * scale)
+        self.current_w = int(msg.angular.z * 1000 * WHEEL_BASE_M * scale)
 
         # Clamp values
         self.current_v = max(-1000, min(1000, self.current_v))

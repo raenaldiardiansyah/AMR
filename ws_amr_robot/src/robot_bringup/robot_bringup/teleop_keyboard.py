@@ -15,7 +15,7 @@ LINEAR_START  = 0.20   # m/s
 ANGULAR_START = 0.50   # rad/s
 LINEAR_STEP   = 0.05
 ANGULAR_STEP  = 0.10
-LINEAR_MAX    = 0.60
+LINEAR_MAX    = 0.45   # gear 1:50 -> maks teoretis ~0,47 m/s (lama: 0.60)
 ANGULAR_MAX   = 1.20
 
 
