@@ -136,7 +136,8 @@ planner_server:
       # 0.5m-turning-radius demo set shipped with nav2_smac_planner. Generated
       # with the nav2_smac_planner/lattice_primitives tool (motion_model=diff,
       # grid_resolution=0.05, num_of_headings=16, stopping_threshold=5).
-      lattice_filepath: "/home/kanal-raspi5/Autonomous-Mobile-Robot/ws_amr_robot/install/robot_bringup/share/robot_bringup/config/lattice_primitives/0.35m_turning_radius/diff/output.json"
+      # 2026-11-16: path user Jetson (lama: /home/kanal-raspi5/...)
+      lattice_filepath: "/home/jetson-nano/Autonomous-Mobile-Robot/ws_amr_robot/install/robot_bringup/share/robot_bringup/config/lattice_primitives/0.35m_turning_radius/diff/output.json"
       lookup_table_size: 20.0
       cache_obstacle_heuristic: false
       allow_reverse_expansion: false  # warehouse AMR: do not plan reverse motions
